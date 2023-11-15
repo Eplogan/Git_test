@@ -157,7 +157,68 @@ summarise(grp, meanF = mean(fishing))
 fishdat%>%group_by(site)%>%summarise(meanF=mean(fishing))
 
 
+#Joining dataframes
+sitedat <- read.csv('Sitesdat.csv', header = TRUE)
+View(sitedat)
+head(sitedat, 10)
+head(sitedat, 5)
 
+#joining dataframe using the innder_join() function
+
+datnew <- inner_join(fishdat, sitedat, by = 'site')
+datnew
+fishdat
+sitedat
+write.csv(datnew, 'data_combined.csv', row.names = FALSE)
+
+#Ploting fishing pressure against distance to pot 
+ggplot(datnew, aes(x = distance, y = fishing, colour = site)) +
+  geom_point(size = 3)
+
+P2 <- ggplot(datnew, aes(x = distance, y = fishing, colour = site)) +
+  geom_point(size = 3)
+
+datsum
+datnew
+
+datdis <- inner_join(datsum, datnew, by = 'site')
+datdis
+
+ggplot(datdis,  aes(x = distance, y = fishing, colour = site)) +
+  geom_point(size = 3) + geom_errorbar(aes(ymin = mean_abund - sdabund, ymax = mean_abund + sdabund))
+
+
+ggplot(datdis,  aes(x = distance, y = fishing, colour = site)) +
+  geom_point(size = 3) + geom_errorbar(aes(ymin = mean_abund - sdabund, ymax = mean_abund + sdabund))
+
+datdis
+
+ggplot(datdis,  aes(x = distance, y = fishing, colour = site)) +
+  geom_point(size = 3) + geom_errorbar(aes(ymin = meanF - sdF, ymax = meanF + sdF))
+
+#fromal analysis using liner models 
+
+lm(fishing ~ distance, data = datnew)
+
+#SAVING THE LINEAR MODEL AS AN OBJECT AND PROVIDING A SUMMARY
+
+modl <- lm(fishing ~ distance, data = datnew) 
+
+summary(modl)
+modl$coefficients
+modl$effects
+modl$rank
+modl$fitted.values
+modl$assign
+
+
+#adding the line of best fit
+P2 + geom_abline(intercept = modl$coefficients[1], slope = modl$coefficients[2])
+
+datnew
+
+#fitting line of best fit awithout table summary 
+P2 + stat_smooth(method = 'lm', se = T, aes(group = 1))
 
 
 
